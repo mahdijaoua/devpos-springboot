@@ -11,8 +11,6 @@ import java.util.Set;
 @Getter
 @Setter
 @AllArgsConstructor
-
-
 @NoArgsConstructor
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -29,6 +27,7 @@ public class Etudiant {
 
     @ManyToMany(mappedBy = "etudiants")
     Set<Reservation> reservations;
+
 
 }
 
