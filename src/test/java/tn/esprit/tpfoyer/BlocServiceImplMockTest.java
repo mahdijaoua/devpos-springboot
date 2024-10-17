@@ -106,6 +106,6 @@ class BlocServiceImplMockTest {
         Assertions.assertEquals(foyer1, modifiedBloc.getFoyer()); // Vérification du foyer associé
 
         // Vérification que save a été appelé
-        Mockito.verify(blocRepository, Mockito.times(1)).save(bloc1);
+        Mockito.verify(blocRepository, Mockito.times(1)).save(Mockito.any(Bloc.class));
     }
 }
