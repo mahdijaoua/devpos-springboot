@@ -75,16 +75,19 @@ class BlocServiceImplMockTest {
     @Test
     public void testModifyBloc() {
         // Simulation pour la récupération et la modification d'un bloc
-        Mockito.when(blocRepository.findById(1L)).thenReturn(Optional.of(bloc1));
+        Mockito.lenient().when(blocRepository.findById(1L)).thenReturn(Optional.of(bloc1)); // Utilisation de lenient pour ignorer l'avertissement
         Mockito.when(blocRepository.save(Mockito.any(Bloc.class))).thenReturn(bloc1);
 
+        // Modification du bloc
         bloc1.setNomBloc("UpdatedName");
         Bloc modifiedBloc = blocService.modifyBloc(bloc1);
 
+        // Assertions pour vérifier la modification
         Assertions.assertNotNull(modifiedBloc);
         Assertions.assertEquals("UpdatedName", modifiedBloc.getNomBloc());
         Assertions.assertEquals(foyer1, modifiedBloc.getFoyer());
 
+        // Vérification de l'appel au repository
         Mockito.verify(blocRepository, Mockito.times(1)).save(Mockito.any(Bloc.class));
     }
 }
