@@ -24,6 +24,9 @@ public class Universite {
     @OneToOne(cascade = CascadeType.ALL)
     Foyer foyer;
 
+    public Universite(String f2, String nom1, String adresse1) {
+
+    }
 }
 
 
