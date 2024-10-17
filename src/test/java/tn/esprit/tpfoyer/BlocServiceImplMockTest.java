@@ -8,15 +8,17 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tn.esprit.tpfoyer.entity.Bloc;
+import tn.esprit.tpfoyer.entity.Foyer;
 import tn.esprit.tpfoyer.repository.BlocRepository;
 import tn.esprit.tpfoyer.service.BlocServiceImpl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
-
 class BlocServiceImplMockTest {
 
     @Mock
@@ -25,91 +27,83 @@ class BlocServiceImplMockTest {
     @InjectMocks
     BlocServiceImpl blocService;
 
-    Bloc bloc1= new Bloc(1, "BlocA", 20);
-    List<Bloc> listBlocs = new ArrayList<Bloc>() {
+    // Création de quelques instances fictives pour les tests
+    Foyer foyer1 = new Foyer();
+    Bloc bloc1 = new Bloc(1L, "BlocA", 20, foyer1, new HashSet<>());
+    List<Bloc> listBlocs = new ArrayList<>() {
         {
-            add(new Bloc(2, "BlocB", 20));
-            add(new Bloc(3, "BlocC", 20));
+            add(new Bloc(2L, "BlocB", 30, foyer1, new HashSet<>()));
+            add(new Bloc(3L, "BlocC", 40, foyer1, new HashSet<>()));
         }
     };
 
     @Test
     public void testRetrieveAllBlocs() {
-        // Mocking the behavior of the repository
+        // Simulation du comportement du repository
         Mockito.when(blocRepository.findAll()).thenReturn(listBlocs);
 
-
+        // Exécution du service
         List<Bloc> blocs = blocService.retrieveAllBlocs();
 
-        // Asserting that the retrieved list is not null and has expected size
+        // Assertions sur les résultats
         Assertions.assertNotNull(blocs);
         Assertions.assertEquals(2, blocs.size());
+        Assertions.assertEquals("BlocB", blocs.get(0).getNomBloc());
     }
 
     @Test
     public void testRetrieveBloc() {
-        // Mocking the behavior of the repository
+        // Simulation du comportement du repository pour un bloc spécifique
         Mockito.when(blocRepository.findById(1L)).thenReturn(Optional.of(bloc1));
 
-
+        // Exécution du service
         Bloc retrievedBloc = blocService.retrieveBloc(1L);
 
-
+        // Assertions sur les résultats
         Assertions.assertNotNull(retrievedBloc);
         Assertions.assertEquals("BlocA", retrievedBloc.getNomBloc());
+        Assertions.assertEquals(foyer1, retrievedBloc.getFoyer()); // Vérification du foyer associé
     }
 
     @Test
     public void testAddBloc() {
-        // Mocking the behavior of the repository
+        // Simulation du comportement du repository lors de l'ajout d'un bloc
         Mockito.when(blocRepository.save(bloc1)).thenReturn(bloc1);
 
-
+        // Exécution du service
         Bloc addedBloc = blocService.addBloc(bloc1);
 
-
+        // Assertions sur les résultats
         Assertions.assertNotNull(addedBloc);
         Assertions.assertEquals("BlocA", addedBloc.getNomBloc());
+        Assertions.assertEquals(foyer1, addedBloc.getFoyer()); // Vérification du foyer associé
     }
 
     @Test
     public void testRemoveBloc() {
-        // Mocking the behavior of the repository
+        // Simulation du comportement du repository pour la suppression
         Mockito.doNothing().when(blocRepository).deleteById(1L);
 
-
+        // Exécution du service
         blocService.removeBloc(1L);
 
-        // Verifying that the repository's deleteById method was called
+        // Vérification que la méthode de suppression du repository a été appelée une fois
         Mockito.verify(blocRepository, Mockito.times(1)).deleteById(1L);
     }
 
     @Test
     public void testModifyBloc() {
-        // Mocking the behavior of the repository
+        // Simulation du comportement du repository lors de la modification
         Mockito.when(blocRepository.findById(1L)).thenReturn(Optional.of(bloc1));
         Mockito.when(blocRepository.save(bloc1)).thenReturn(bloc1);
 
-
+        // Modification du bloc
         bloc1.setNomBloc("UpdatedName");
         Bloc modifiedBloc = blocService.modifyBloc(bloc1);
 
-
+        // Assertions sur les résultats
         Assertions.assertNotNull(modifiedBloc);
         Assertions.assertEquals("UpdatedName", modifiedBloc.getNomBloc());
+        Assertions.assertEquals(foyer1, modifiedBloc.getFoyer()); // Vérification du foyer associé
     }
-
-  //  @Test
-  //  public void testRecupererBlocParCin() {
-        // Mocking the behavior of the repository
-   //     Mockito.when(blocRepository.findEtudiantByCinEtudiant(123456789)).thenReturn(etudiant1);
-
-        // Retrieving the Etudiant by CIN
-     //   Etudiant retrievedEtudiant = etudiantService.recupererEtudiantParCin(123456789);
-
-        // Asserting that the retrieved Etudiant is not null
-      //  Assertions.assertNotNull(retrievedEtudiant);
-       // Assertions.assertEquals("John", retrievedEtudiant.getNomEtudiant());
-    }
-
 }
