@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class BlocServiceImplMockTest {
@@ -68,7 +67,7 @@ class BlocServiceImplMockTest {
     @Test
     public void testAddBloc() {
         // Simulation du comportement du repository lors de l'ajout d'un bloc
-        Mockito.when(blocRepository.save(bloc1)).thenReturn(bloc1);
+        Mockito.when(blocRepository.save(Mockito.any(Bloc.class))).thenReturn(bloc1); // Utiliser Mockito.any
 
         // Exécution du service
         Bloc addedBloc = blocService.addBloc(bloc1);
@@ -95,7 +94,7 @@ class BlocServiceImplMockTest {
     public void testModifyBloc() {
         // Simulation du comportement du repository lors de la modification
         Mockito.when(blocRepository.findById(1L)).thenReturn(Optional.of(bloc1));
-        Mockito.when(blocRepository.save(bloc1)).thenReturn(bloc1);
+        Mockito.when(blocRepository.save(Mockito.any(Bloc.class))).thenReturn(bloc1); // Utiliser Mockito.any
 
         // Modification du bloc
         bloc1.setNomBloc("UpdatedName");
@@ -105,5 +104,8 @@ class BlocServiceImplMockTest {
         Assertions.assertNotNull(modifiedBloc);
         Assertions.assertEquals("UpdatedName", modifiedBloc.getNomBloc());
         Assertions.assertEquals(foyer1, modifiedBloc.getFoyer()); // Vérification du foyer associé
+
+        // Vérification que save a été appelé
+        Mockito.verify(blocRepository, Mockito.times(1)).save(bloc1);
     }
 }
