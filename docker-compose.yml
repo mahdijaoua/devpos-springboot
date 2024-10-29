@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   mysqldb:
     image: mysql:8.3
@@ -14,7 +13,7 @@ services:
   app-timesheet:
     depends_on:
       - mysqldb
-    image: d3fcec7948f4/tp-foyer:1.0.0
+    image: d3fcec7948f4/tp-foyer:${BUILD_NUMBER}
     #build : ./
     restart: on-failure
     ports:
@@ -26,10 +25,7 @@ services:
         "spring.datasource.password" : "root",
         "spring.jpa.hibernate.ddl-auto" : "update"
       }'
-
-
     stdin_open: true
     tty: true
-
 volumes:
   db :
