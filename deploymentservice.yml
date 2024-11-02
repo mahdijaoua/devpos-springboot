@@ -1,92 +1,75 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysqldb-deployment
+  name: combined-deployment
   labels:
-    app: mysqldb
+    app: combined-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mysqldb
+      app: combined-app
   template:
     metadata:
       labels:
-        app: mysqldb
+        app: combined-app
     spec:
       containers:
       - name: mysqldb
         image: mysql:8.3
-        env:
-          - name: MYSQL_ROOT_PASSWORD
-            value: "root"
-          - name: MYSQL_DATABASE
-            value: "tpfoyer_db"
         ports:
         - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root"
+        - name: MYSQL_DATABASE
+          value: "tpfoyer_db"
         volumeMounts:
-          - name: db-storage
-            mountPath: /var/lib/mysql
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+
+      - name: tp-foyer
+        image: alachebil/tp-foyer:1.0.0
+        ports:
+        - containerPort: 8089
+        env:
+        - name: SPRING_APPLICATION_JSON
+          value: '{
+            "spring.datasource.url"  : "jdbc:mysql://localhost:3306/tpfoyer_db?createDatabaseIfNotExist=true",
+            "spring.datasource.username" : "root",
+            "spring.datasource.password" : "root",
+            "spring.jpa.hibernate.ddl-auto" : "update"
+          }'
       volumes:
-        - name: db-storage
-          persistentVolumeClaim:
-            claimName: db-pvc  # Use a PVC for data persistence
+      - name: mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysqldb-service
+  name: combined-app-service
 spec:
   selector:
-    app: mysqldb
+    app: combined-app
   ports:
+    - protocol: TCP
+      port: 8089
+      targetPort: 8089
     - protocol: TCP
       port: 3306
       targetPort: 3306
-  type: ClusterIP  # Expose MySQL service within the cluster
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: eventapp-deployment
-  labels:
-    app: eventapp
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: eventapp
-  template:
-    metadata:
-      labels:
-        app: eventapp
-    spec:
-      containers:
-      - name: eventserver
-        image: alachebil/tp-foyer:1.0.0
-        ports:
-        - containerPort: 8089  # Update to match Docker Compose
-        env:
-          - name: SPRING_APPLICATION_JSON
-            value: '{
-              "spring.datasource.url": "jdbc:mysql://mysqldb-service:3306/tpfoyer_db?createDatabaseIfNotExist=true",
-              "spring.datasource.username": "root",
-              "spring.datasource.password": "root",
-              "spring.jpa.hibernate.ddl-auto": "update"
-            }'
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: eventapp-service
-spec:
-  selector:
-    app: eventapp
-  ports:
-    - protocol: TCP
-      port: 8089  # Update to match Docker Compose
-      targetPort: 8089
-  type: LoadBalancer  # Use NodePort or ClusterIP based on your requirement
+  type: LoadBalancer
