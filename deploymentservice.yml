@@ -66,10 +66,12 @@ spec:
   selector:
     app: combined-app
   ports:
-    - protocol: TCP
+    - name: http-port
+      protocol: TCP
       port: 8089
       targetPort: 8089
-    - protocol: TCP
+    - name: mysql-port
+      protocol: TCP
       port: 3306
       targetPort: 3306
   type: LoadBalancer
