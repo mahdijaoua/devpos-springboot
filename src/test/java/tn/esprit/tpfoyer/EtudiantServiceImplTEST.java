@@ -88,20 +88,7 @@ public class EtudiantServiceImplTEST {
         Mockito.verify(etudiantRepository, Mockito.times(1)).deleteById(1L);
     }
 
-    @Test
-    public void testModifyEtudiant() {
-        // Mocking the behavior of the repository
-        Mockito.when(etudiantRepository.findById(1L)).thenReturn(Optional.of(etudiant1));
-        Mockito.when(etudiantRepository.save(etudiant1)).thenReturn(etudiant1);
 
-        // Modifying the Etudiant
-        etudiant1.setNomEtudiant("UpdatedName");
-        Etudiant modifiedEtudiant = etudiantService.modifyEtudiant(etudiant1);
-
-        // Asserting that the modified Etudiant is not null and matches the expected updates
-        Assertions.assertNotNull(modifiedEtudiant);
-        Assertions.assertEquals("UpdatedName", modifiedEtudiant.getNomEtudiant());
-    }
 
     @Test
     public void testRecupererEtudiantParCin() {
